@@ -5,6 +5,8 @@ A high-performance, asynchronous CLI downloader for SushiScan.
 ## Installation
 
 ```bash
+git clone https://github.com/g0ldyy/sushiscan-downloader
+cd sushiscan-downloader
 pip install uv
 uv sync
 ```
