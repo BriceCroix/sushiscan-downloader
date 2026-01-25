@@ -35,12 +35,13 @@ def main():
         ],
         help="Output format",
     )
+    parser.add_argument("--user-agent", help="User Agent to use")
 
     args = parser.parse_args()
 
     cookie = args.cookie
 
-    downloader = Downloader(args.output, cookie)
+    downloader = Downloader(args.output, cookie, user_agent=args.user_agent)
     try:
         asyncio.run(
             downloader.start(args.url, selection=args.volumes, save_as=args.save_as)

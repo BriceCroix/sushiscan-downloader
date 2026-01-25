@@ -21,10 +21,11 @@ uv run python -m sushiscan_downloader [URL] [OPTIONS]
 
 - `-o, --output`: Output directory (default: `downloads`)
 - `-c, --cookie`: **Required** Cloudflare cookie (`cf_clearance=...`)
+- `--user-agent`: User Agent to use (must match the browser where the cookie was taken from)
 - `--volumes`: Select volumes (e.g., `1`, `1-5`, `1,3`, `all`)
 - `--save-as`: Export format (`raw`, `pdf`, `cbz`, `epub`, `cb7`) suffixes `-single` or `-volume` supported.
 
-> **Note:** The `cf_clearance` cookie is almost always required to bypass Cloudflare protection. You can get it from your browser's devtools (Application -> Cookies).
+> **Note:** The `cf_clearance` cookie is almost always required to bypass Cloudflare protection. You can get it from your browser's devtools (Application -> Cookies). **When using a cookie, ensure the User Agent matches the one from your browser.**
 
 ## Examples
 

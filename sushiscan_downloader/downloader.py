@@ -11,15 +11,16 @@ from .utils import parse_selection, sanitize_filename
 
 
 class Downloader:
-    def __init__(self, output_dir: str, cookie: str = None):
+    def __init__(self, output_dir: str, cookie: str = None, user_agent: str = None):
         self.output_dir = output_dir
         self.cookie = cookie
-        self.net = Net(cookie=cookie)
+        self.user_agent = user_agent
+        self.net = Net(cookie=cookie, user_agent=user_agent)
         self.scraper = Scraper(self.net)
         self.async_net = None
 
     async def start(self, url: str, selection: str = "all", save_as: str = "raw"):
-        self.async_net = AsyncNet(cookie=self.cookie)
+        self.async_net = AsyncNet(cookie=self.cookie, user_agent=self.user_agent)
         try:
             manga = self.scraper.get_manga(url)
             print(f"Manga: {manga.title}")
