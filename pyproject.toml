@@ -1,0 +1,27 @@
+[project]
+name = "sushiscan"
+version = "0.1.0"
+authors = [{ name = "Goldy" }]
+description = "A high-performance, asynchronous CLI downloader for SushiScan."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.14.3",
+    "curl-cffi>=0.14.0",
+    "img2pdf>=0.6.3",
+    "py7zr>=1.1.2",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Topic :: Multimedia",
+    "Topic :: Utilities",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+]
+license = "GPL-3.0-or-later"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/g0ldyy/sushiscan-downloader"
+Issues = "https://github.com/g0ldyy/sushiscan-downloader/issues"
