@@ -51,7 +51,7 @@ class AsyncNet:
             self.session.headers["user-agent"] = user_agent
 
     async def get(self, url: str) -> curl_cffi.Response:
-        return await self.session.get(url)
+        return await self.session.get(url, timeout=1200)
 
     async def get_content(self, url: str) -> bytes:
         response = await self.get(url)
