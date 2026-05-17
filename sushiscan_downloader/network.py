@@ -6,18 +6,21 @@ from bs4 import BeautifulSoup
 
 class Net:
     def __init__(self, user_agent: str = None, cookie: str = None):
-        self.headers = {
-            "referer": "https://sushiscan.net/",
-            "user-agent": user_agent
-            or "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
-        }
+
+        cookies_dict = {}
         if cookie:
-            self.headers["cookie"] = cookie
+            for item in cookie.split(";"):
+                if "=" in item:
+                    k, v = item.split("=", 1)
+                    cookies_dict[k.strip()] = v.strip()
 
-        self.session = curl_cffi.Session(impersonate="chrome")
-        self.session.headers.update(self.headers)
+        self.session = curl_cffi.Session(impersonate="chrome", cookies=cookies_dict)
 
-    def get(self, url: str) -> curl_cffi.Response:
+        self.session.headers["referer"] = "https://sushiscan.net/"
+        if user_agent:
+            self.session.headers["user-agent"] = user_agent
+
+    def get(self, url: str):
         return self.session.get(url)
 
     def get_soup(self, url: str) -> BeautifulSoup:
@@ -25,22 +28,27 @@ class Net:
         return BeautifulSoup(response.text, "html.parser")
 
     def update_cookie(self, cookie: str):
-        self.headers["cookie"] = cookie
-        self.session.headers.update({"cookie": cookie})
+        if "=" in cookie:
+            k, v = cookie.split("=", 1)
+            self.session.cookies.set(k.strip(), v.strip())
 
 
 class AsyncNet:
     def __init__(self, user_agent: str = None, cookie: str = None):
-        self.headers = {
-            "referer": "https://sushiscan.net/",
-            "user-agent": user_agent
-            or "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
-        }
+        cookies_dict = {}
         if cookie:
-            self.headers["cookie"] = cookie
+            for item in cookie.split(";"):
+                if "=" in item:
+                    k, v = item.split("=", 1)
+                    cookies_dict[k.strip()] = v.strip()
 
-        self.session = curl_cffi.AsyncSession(impersonate="chrome")
-        self.session.headers.update(self.headers)
+        self.session = curl_cffi.AsyncSession(
+            impersonate="chrome", cookies=cookies_dict
+        )
+
+        self.session.headers["referer"] = "https://sushiscan.net/"
+        if user_agent:
+            self.session.headers["user-agent"] = user_agent
 
     async def get(self, url: str) -> curl_cffi.Response:
         return await self.session.get(url)
