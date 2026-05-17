@@ -31,10 +31,10 @@ uv run python -m sushiscan_downloader [URL] [OPTIONS]
 
 Download specific volumes as PDF:
 ```bash
-uv run python -m sushiscan_downloader "https://sushiscan.net/catalogue/manga-url" --volumes "1-3" --save-as pdf
+uv run python -m sushiscan_downloader "https://sushiscan.net/catalogue/manga-url" --cookie "cf_clearance=y0ur-c00k1e-here" --volumes "1-3" --save-as pdf
 ```
 
 Download all volumes into a single CBZ file:
 ```bash
-uv run python -m sushiscan_downloader "https://sushiscan.net/catalogue/manga-url" --save-as cbz-single
+uv run python -m sushiscan_downloader "https://sushiscan.net/catalogue/manga-url" --cookie "cf_clearance=y0ur-c00k1e-here" --save-as cbz-single
 ```
