@@ -76,6 +76,7 @@ class Downloader:
 
         else:
             temp_dir = os.path.join(tempfile.gettempdir(), safe_chapter)
+            os.makedirs(temp_dir, exist_ok=True)
 
             if not await self._download_pages(chapter.pages, temp_dir):
                 print(f"  Error downloading {safe_chapter}.")
@@ -131,6 +132,7 @@ class Downloader:
             return
 
         temp_dir = os.path.join(tempfile.gettempdir(), bundle_name)
+        os.makedirs(temp_dir, exist_ok=True)
 
         all_images = []
         for chapter in chapters:

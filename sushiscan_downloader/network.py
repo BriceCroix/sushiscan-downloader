@@ -17,7 +17,7 @@ class Net:
         self.session = curl_cffi.Session(
             impersonate="chrome",
             cookies=cookies_dict,
-            retry=curl_cffi.RetryStrategy(count=10, delay=1, jitter=1),
+            retry=curl_cffi.requests.RetryStrategy(count=10, delay=1, jitter=1),
         )
 
         self.session.headers["referer"] = "https://sushiscan.net/"
@@ -49,7 +49,7 @@ class AsyncNet:
         self.session = curl_cffi.AsyncSession(
             impersonate="chrome",
             cookies=cookies_dict,
-            retry=curl_cffi.RetryStrategy(count=10, delay=1, jitter=1),
+            retry=curl_cffi.requests.RetryStrategy(count=10, delay=1, jitter=1),
         )
 
         self.session.headers["referer"] = "https://sushiscan.net/"
