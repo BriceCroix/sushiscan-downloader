@@ -1,5 +1,6 @@
 import asyncio
 import os
+import shutil
 import tempfile
 from typing import List
 
@@ -74,26 +75,31 @@ class Downloader:
             print(f"  Completed {save_as}: {chapter_path}")
 
         else:
-            with tempfile.TemporaryDirectory() as temp_dir:
-                await self._download_pages(chapter.pages, temp_dir)
+            temp_dir = os.path.join(tempfile.gettempdir(), safe_chapter)
 
-                images = [os.path.join(temp_dir, p.filename) for p in chapter.pages]
+            if not await self._download_pages(chapter.pages, temp_dir):
+                print(f"  Error downloading {safe_chapter}.")
+                return
 
-                ext = save_as.split("-")[0]
-                if ext == "pdf":
-                    out_file = os.path.join(base_path, f"{safe_chapter}.pdf")
-                    Converter.create_pdf(images, out_file)
-                elif ext == "cbz":
-                    out_file = os.path.join(base_path, f"{safe_chapter}.cbz")
-                    Converter.create_cbz(images, out_file)
-                elif ext == "cb7":
-                    out_file = os.path.join(base_path, f"{safe_chapter}.cb7")
-                    Converter.create_cb7(images, out_file)
-                elif ext == "epub":
-                    out_file = os.path.join(base_path, f"{safe_chapter}.epub")
-                    Converter.create_epub(images, out_file, chapter.title)
+            images = [os.path.join(temp_dir, p.filename) for p in chapter.pages]
 
-                print(f"  Completed {ext}: {out_file}")
+            ext = save_as.split("-")[0]
+
+            if ext == "pdf":
+                out_file = os.path.join(base_path, f"{safe_chapter}.pdf")
+                Converter.create_pdf(images, out_file)
+            elif ext == "cbz":
+                out_file = os.path.join(base_path, f"{safe_chapter}.cbz")
+                Converter.create_cbz(images, out_file)
+            elif ext == "cb7":
+                out_file = os.path.join(base_path, f"{safe_chapter}.cb7")
+                Converter.create_cb7(images, out_file)
+            elif ext == "epub":
+                out_file = os.path.join(base_path, f"{safe_chapter}.epub")
+                Converter.create_epub(images, out_file, chapter.title)
+
+            print(f"  Completed {ext}: {out_file}")
+            shutil.rmtree(temp_dir)
 
     async def _process_single_bundled(
         self, manga: Manga, chapters: List[Chapter], save_as: str, base_path: str
@@ -124,60 +130,72 @@ class Downloader:
             print(f"  Completed raw-single: {target_dir}")
             return
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            all_images = []
-            for chapter in chapters:
-                print(f"  Fetching {chapter.title}...")
-                self.scraper.get_chapter_pages(chapter)
+        temp_dir = os.path.join(tempfile.gettempdir(), bundle_name)
 
-                prefix = sanitize_filename(chapter.title)
+        all_images = []
+        for chapter in chapters:
+            print(f"  Fetching {chapter.title}...")
+            self.scraper.get_chapter_pages(chapter)
 
-                chapter_images = []
-                for p in chapter.pages:
-                    p.filename = f"{prefix}_{p.filename}"
-                    chapter_images.append(p)
+            prefix = sanitize_filename(chapter.title)
 
-                await self._download_pages(chapter_images, temp_dir)
-                all_images.extend(
-                    [os.path.join(temp_dir, p.filename) for p in chapter_images]
-                )
+            chapter_images = []
+            for p in chapter.pages:
+                p.filename = f"{prefix}_{p.filename}"
+                chapter_images.append(p)
 
-            ext = save_as.split("-")[0]
-            out_file = os.path.join(base_path, f"{bundle_name}.{ext}")
+            if not await self._download_pages(chapter_images, temp_dir):
+                print(f"  Error downloading {chapter.title}, exiting.")
+                return
+            all_images.extend(
+                [os.path.join(temp_dir, p.filename) for p in chapter_images]
+            )
 
-            if ext == "pdf":
-                Converter.create_pdf(all_images, out_file)
-            elif ext == "cbz":
-                Converter.create_cbz(all_images, out_file)
-            elif ext == "cb7":
-                Converter.create_cb7(all_images, out_file)
-            elif ext == "epub":
-                Converter.create_epub(all_images, out_file, manga.title)
+        ext = save_as.split("-")[0]
+        out_file = os.path.join(base_path, f"{bundle_name}.{ext}")
 
-            print(f"  Completed single {ext}: {out_file}")
+        if ext == "pdf":
+            Converter.create_pdf(all_images, out_file)
+        elif ext == "cbz":
+            Converter.create_cbz(all_images, out_file)
+        elif ext == "cb7":
+            Converter.create_cb7(all_images, out_file)
+        elif ext == "epub":
+            Converter.create_epub(all_images, out_file, manga.title)
 
-    async def _download_pages(self, pages: List[Page], folder: str):
+        print(f"  Completed single {ext}: {out_file}")
+        shutil.rmtree(temp_dir)
+
+    async def _download_pages(self, pages: List[Page], folder: str) -> bool:
         tasks = []
         total = len(pages)
         completed = 0
 
         async def progress_wrapper(coro):
             nonlocal completed
-            await coro
+            res = await coro
             completed += 1
             print(f"\r  [{completed}/{total}] pages downloaded", end="", flush=True)
+            return res
 
         for page in pages:
             tasks.append(progress_wrapper(self._download_page(page, folder)))
 
-        await asyncio.gather(*tasks)
+        res = await asyncio.gather(*tasks)
         print()
+        return all(res)
 
-    async def _download_page(self, page: Page, folder: str):
+    async def _download_page(self, page: Page, folder: str) -> bool:
         try:
-            content = await self.async_net.get_content(page.url)
             path = os.path.join(folder, page.filename)
+            if os.path.isfile(path):
+                print(f"  Skipping {page.url}: Already downloaded")
+                return True
+
+            content = await self.async_net.get_content(page.url)
             with open(path, "wb") as f:
                 f.write(content)
+            return True
         except Exception as e:
             print(f"  Failed to download {page.url}: {e}")
+            return False
