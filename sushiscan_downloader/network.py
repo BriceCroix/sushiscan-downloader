@@ -14,7 +14,11 @@ class Net:
                     k, v = item.split("=", 1)
                     cookies_dict[k.strip()] = v.strip()
 
-        self.session = curl_cffi.Session(impersonate="chrome", cookies=cookies_dict)
+        self.session = curl_cffi.Session(
+            impersonate="chrome",
+            cookies=cookies_dict,
+            retry=curl_cffi.RetryStrategy(count=10, delay=1, jitter=1),
+        )
 
         self.session.headers["referer"] = "https://sushiscan.net/"
         if user_agent:
@@ -43,7 +47,9 @@ class AsyncNet:
                     cookies_dict[k.strip()] = v.strip()
 
         self.session = curl_cffi.AsyncSession(
-            impersonate="chrome", cookies=cookies_dict
+            impersonate="chrome",
+            cookies=cookies_dict,
+            retry=curl_cffi.RetryStrategy(count=10, delay=1, jitter=1),
         )
 
         self.session.headers["referer"] = "https://sushiscan.net/"
