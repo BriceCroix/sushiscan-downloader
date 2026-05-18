@@ -40,7 +40,10 @@ class Scraper:
         return manga
 
     def get_chapter_pages(self, chapter: Chapter) -> List[Page]:
-        response_text = self.net.get(chapter.url).text
+        try:
+            response_text = self.net.get(chapter.url).text
+        except Exception as _e:
+            response_text = ""
 
         match = re.search(r'"images"\s*:\s*(\[.*?\])', response_text)
         pages = []
