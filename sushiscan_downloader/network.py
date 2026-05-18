@@ -25,7 +25,7 @@ class Net:
             self.session.headers["user-agent"] = user_agent
 
     def get(self, url: str):
-        return self.session.get(url)
+        return self.session.get(url, timeout=600)
 
     def get_soup(self, url: str) -> BeautifulSoup:
         response = self.get(url)
@@ -57,7 +57,7 @@ class AsyncNet:
             self.session.headers["user-agent"] = user_agent
 
     async def get(self, url: str) -> curl_cffi.Response:
-        return await self.session.get(url, timeout=1200)
+        return await self.session.get(url, timeout=600)
 
     async def get_content(self, url: str) -> bytes:
         response = await self.get(url)
