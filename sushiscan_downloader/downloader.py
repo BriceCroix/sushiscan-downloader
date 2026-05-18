@@ -66,7 +66,7 @@ class Downloader:
             print(f"  No pages found for {chapter.title}")
             return
 
-        safe_chapter = sanitize_filename(chapter.title)
+        safe_chapter = f"{manga.title} - {sanitize_filename(chapter.title)}"
 
         if save_as in ["raw", "raw-volume"]:
             chapter_path = os.path.join(base_path, safe_chapter)
@@ -110,7 +110,7 @@ class Downloader:
         if len(chapters) == 1:
             bundle_name = sanitize_filename(chapters[0].title)
         else:
-            bundle_name = f"{sanitize_filename(chapters[-1].title)} - {sanitize_filename(chapters[0].title)}"
+            bundle_name = f"{manga.title} - {sanitize_filename(chapters[-1].title)} - {sanitize_filename(chapters[0].title)}"
             pass
 
         if save_as == "raw-single":
