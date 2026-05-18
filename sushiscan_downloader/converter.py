@@ -9,18 +9,24 @@ import py7zr
 class Converter:
     @staticmethod
     def create_cbz(images: List[str], output_path: str):
+        if len(images) == 0:
+            return
         with zipfile.ZipFile(output_path, "w") as zf:
             for img in images:
                 zf.write(img, os.path.basename(img))
 
     @staticmethod
     def create_cb7(images: List[str], output_path: str):
+        if len(images) == 0:
+            return
         with py7zr.SevenZipFile(output_path, "w") as zf:
             for img in images:
                 zf.write(img, os.path.basename(img))
 
     @staticmethod
     def create_pdf(images: List[str], output_path: str):
+        if len(images) == 0:
+            return
         try:
             with open(output_path, "wb") as f:
                 f.write(img2pdf.convert(images))
@@ -29,6 +35,8 @@ class Converter:
 
     @staticmethod
     def create_epub(images: List[str], output_path: str, title: str):
+        if len(images) == 0:
+            return
         with zipfile.ZipFile(output_path, "w") as zf:
             zf.writestr("mimetype", "application/epub+zip")
             zf.writestr(
